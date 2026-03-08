@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Habesha Hearts - Ethiopian dating app prototype">
+    <title>Habesha Hearts - Ethiopian Dating App</title>
+    <link rel="preload" href="style.css" as="style">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="background-pattern"></div>
+        
+        <header>
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" width="32" height="32">
+                    <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z" fill="#ffffff"/>
+                </svg>
+                <h1>Habesha Hearts</h1>
+            </div>
+            <nav>
+                <button class="nav-btn active">Find love</button>
+                <button class="nav-btn">Messages</button>
+                <button class="nav-btn">Profile</button>
+            </nav>
+            <div class="header-decoration"></div>
+        </header>
+        
+        <main>
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-photo">
+                        <svg viewBox="0 0 100 100" width="100%" height="100%">
+                            <defs>
+                                <pattern id="ethiopian-pattern" patternUnits="userSpaceOnUse" width="20" height="20">
+                                    <rect width="10" height="10" fill="#006b3f"/>
+                                    <rect x="10" y="0" width="10" height="10" fill="#fcd116"/>
+                                    <rect x="0" y="10" width="10" height="10" fill="#fcd116"/>
+                                    <rect x="10" y="10" width="10" height="10" fill="#b71c1c"/>
+                                </pattern>
+                            </defs>
+                            <circle cx="50" cy="50" r="48" fill="#f0f0f0"/>
+                            <circle cx="50" cy="50" r="48" fill="url(#ethiopian-pattern)" opacity="0.1"/>
+                            <path d="M50,25 C42,25 36,31 36,39 C36,47 42,53 50,53 C58,53 64,47 64,39 C64,31 58,25 50,25 Z M50,55 C37,55 27,65 27,78 L73,78 C73,65 63,55 50,55 Z" fill="#cccccc"/>
+                        </svg>
+                    </div>
+                    <div class="profile-info">
+                        <h2>Mehalet, 37</h2>
+                        <p><span class="location-icon">📍</span> Addis Ababa</p>
+                    </div>
+                </div>
+                <div class="profile-bio">
+                    <p>Compliance officer at Huawei who enjoys walking, going to the gym, and spending time with family. Looking for someone to explore Addis with!</p>
+                </div>
+                <div class="profile-interests">
+                    <span class="interest-tag">Coffee Ceremonies</span>
+                    <span class="interest-tag">Music</span>
+                    <span class="interest-tag">Travel</span>
+                    <span class="interest-tag">Cooking</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn skip-btn">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn like-btn">
+                        <svg viewBox="0 0 24 24" width="32" height="32">
+                            <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn message-btn">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M20,16H6L4,18V4H20" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- <div class="cultural-symbols">
+                <svg class="coffee-pot" viewBox="0 0 100 100" width="60" height="60">
+                    <path d="M30,20 L70,20 L75,40 C75,65 60,80 50,80 C40,80 25,65 25,40 L30,20 Z" fill="none" stroke="#b71c1c" stroke-width="2"/>
+                    <path d="M40,20 L60,20 L60,10 L40,10 Z" fill="none" stroke="#b71c1c" stroke-width="2"/>
+                    <path d="M75,40 L85,50 L85,60 L75,65" fill="none" stroke="#b71c1c" stroke-width="2"/>
+                </svg>
+            </div> -->
+        </main>
+        
+        <div class="matches-preview">
+            <h3>New Matches</h3>
+            <div class="matches-container">
+                <div class="match-thumbnail">
+                    <div class="match-photo"></div>
+                    <p>Sem</p>
+                </div>
+                <div class="match-thumbnail">
+                    <div class="match-photo"></div>
+                    <p>Meron</p>
+                </div>
+                <div class="match-thumbnail">
+                    <div class="match-photo"></div>
+                    <p>Dawit</p>
+                </div>
+                <div class="match-thumbnail">
+                    <div class="match-photo new-match"></div>
+                    <p>Hanna</p>
+                </div>
+                <div class="match-thumbnail">
+                    <div class="match-photo"></div>
+                    <p>Abebe</p>
+                </div>
+                <div class="match-thumbnail">
+                    <div class="match-photo new-match"></div>
+                    <p>Rahel</p>
+                </div>
+                <div class="match-thumbnail">
+                    <div class="match-photo"></div>
+                    <p>Bekele</p>
+                </div>
+                <div class="match-thumbnail">
+                    <div class="match-photo"></div>
+                    <p>Tigist</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js" defer></script>
+</body>
+</html>
