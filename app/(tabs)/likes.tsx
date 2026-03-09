@@ -8,15 +8,17 @@ import { useLocale } from '@/lib/i18n';
 import { toThumbnailUrl, toWebOptimizedUrl } from '@/lib/profileImages';
 import { getJSON, STORAGE_KEYS } from '@/lib/storage';
 
-export default function ExploreScreen() {
+export default function LikesScreen() {
   const { t } = useLocale();
-  const [profiles, setProfiles] = useState<Profile[]>(seedProfiles);
+  const [likedProfiles, setLikedProfiles] = useState<Profile[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       void (async () => {
         const storedProfiles = await getJSON<Profile[]>(STORAGE_KEYS.profiles, seedProfiles);
-        setProfiles(storedProfiles.length ? storedProfiles : seedProfiles);
+        const storedLikes = await getJSON<string[]>(STORAGE_KEYS.likes, []);
+        const profiles = storedProfiles.length ? storedProfiles : seedProfiles;
+        setLikedProfiles(profiles.filter((profile) => storedLikes.includes(profile.id)));
       })();
       return () => undefined;
     }, [])
@@ -25,10 +27,10 @@ export default function ExploreScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>{t('exploreTitle')}</Text>
-        <Text style={styles.subtitle}>{t('exploreHint')}</Text>
-        {profiles.map((profile) => (
-          <View key={profile.id} style={styles.card}>
+        <Text style={styles.title}>{t('likesTitle')}</Text>
+        {!likedProfiles.length ? <Text style={styles.empty}>{t('likesEmpty')}</Text> : null}
+        {likedProfiles.map((profile) => (
+          <View key={profile.id} style={styles.row}>
             <Image
               source={{ uri: toWebOptimizedUrl(toThumbnailUrl(profile.photoUrls?.[0] || '')) }}
               style={styles.photo}
@@ -36,9 +38,11 @@ export default function ExploreScreen() {
             <View style={styles.copy}>
               <Text style={styles.name}>{profile.name}</Text>
               <Text style={styles.meta}>
-                {profile.age} • {profile.city} • {profile.distanceKm || 0} km
+                {profile.age} • {profile.city}
               </Text>
-              <Text style={styles.bio}>{profile.bio}</Text>
+              <Text style={styles.bio} numberOfLines={2}>
+                {profile.bio}
+              </Text>
             </View>
           </View>
         ))}
@@ -56,37 +60,41 @@ const styles = StyleSheet.create({
   content: {
     paddingTop: 10,
     paddingBottom: 120,
-    gap: 14,
+    gap: 12,
   },
   title: {
     color: palette.textPrimary,
     fontSize: 28,
     fontWeight: '900',
   },
-  subtitle: {
+  empty: {
     color: palette.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 22,
   },
-  card: {
+  row: {
+    flexDirection: 'row',
+    gap: 12,
     backgroundColor: palette.surface,
-    borderRadius: 22,
-    overflow: 'hidden',
+    borderRadius: 20,
+    padding: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.06)',
   },
   photo: {
-    width: '100%',
-    height: 240,
+    width: 90,
+    height: 110,
+    borderRadius: 16,
     backgroundColor: palette.surfaceLight,
   },
   copy: {
-    padding: 16,
-    gap: 6,
+    flex: 1,
+    gap: 4,
+    justifyContent: 'center',
   },
   name: {
     color: palette.textPrimary,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '800',
   },
   meta: {
@@ -96,7 +104,7 @@ const styles = StyleSheet.create({
   },
   bio: {
     color: '#E4E9F2',
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: 15,
+    lineHeight: 21,
   },
 });

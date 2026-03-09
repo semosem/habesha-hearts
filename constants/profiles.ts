@@ -20,7 +20,11 @@ export const profiles: Profile[] = [
     bio: 'Coffee ceremony lover, weekend hiker, curious about tech + film.',
     interests: ['Buna', 'Film nights', 'Entoto hikes'],
     vibe: '#7AD7F0',
-    photoUrls: ['https://randomuser.me/api/portraits/women/65.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/women/65.jpg',
+      'https://randomuser.me/api/portraits/women/66.jpg',
+      'https://randomuser.me/api/portraits/women/67.jpg'
+    ],
     intent: 'Dating',
     distanceKm: 3
   },
@@ -32,7 +36,11 @@ export const profiles: Profile[] = [
     bio: 'Sunrise runner by the lake, jazz vinyl collector, foodie.',
     interests: ['Jazz', '5k runs', 'Injera perfection'],
     vibe: '#F7B267',
-    photoUrls: ['https://randomuser.me/api/portraits/men/43.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/men/43.jpg',
+      'https://randomuser.me/api/portraits/men/44.jpg',
+      'https://randomuser.me/api/portraits/men/45.jpg'
+    ],
     intent: 'Long term',
     distanceKm: 10
   },
@@ -44,7 +52,11 @@ export const profiles: Profile[] = [
     bio: 'Designer who sketches cafés. Let’s trade playlists and stories.',
     interests: ['Design', 'Playlists', 'Travel'],
     vibe: '#C792E9',
-    photoUrls: ['https://randomuser.me/api/portraits/women/47.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/women/47.jpg',
+      'https://randomuser.me/api/portraits/women/48.jpg',
+      'https://randomuser.me/api/portraits/women/49.jpg'
+    ],
     intent: 'Dating',
     distanceKm: 45
   },
@@ -56,7 +68,11 @@ export const profiles: Profile[] = [
     bio: 'Cyclist, amateur chef, always planning the next road trip.',
     interests: ['Cycling', 'Cooking', 'Road trips'],
     vibe: '#7EE38F',
-    photoUrls: ['https://randomuser.me/api/portraits/men/59.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/men/59.jpg',
+      'https://randomuser.me/api/portraits/men/60.jpg',
+      'https://randomuser.me/api/portraits/men/61.jpg'
+    ],
     intent: 'Long term',
     distanceKm: 25
   },
@@ -68,7 +84,11 @@ export const profiles: Profile[] = [
     bio: 'Book club host, photography on film, stargazer.',
     interests: ['Books', 'Film photos', 'Stargazing'],
     vibe: '#FF9AA2',
-    photoUrls: ['https://randomuser.me/api/portraits/women/68.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/women/68.jpg',
+      'https://randomuser.me/api/portraits/women/69.jpg',
+      'https://randomuser.me/api/portraits/women/70.jpg'
+    ],
     intent: 'Long term',
     distanceKm: 120
   },
@@ -80,7 +100,11 @@ export const profiles: Profile[] = [
     bio: 'History buff & museum crawler. Brunch + conversations.',
     interests: ['History', 'Brunch', 'Museums'],
     vibe: '#6DD3B6',
-    photoUrls: ['https://randomuser.me/api/portraits/women/42.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/women/42.jpg',
+      'https://randomuser.me/api/portraits/women/43.jpg',
+      'https://randomuser.me/api/portraits/women/44.jpg'
+    ],
     intent: 'Dating',
     distanceKm: 90
   },
@@ -92,7 +116,11 @@ export const profiles: Profile[] = [
     bio: 'Engineer by day, salsa learner by night. Coffee is non‑negotiable.',
     interests: ['Salsa', 'Coffee', 'Tech'],
     vibe: '#FFD166',
-    photoUrls: ['https://randomuser.me/api/portraits/men/34.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/men/34.jpg',
+      'https://randomuser.me/api/portraits/men/35.jpg',
+      'https://randomuser.me/api/portraits/men/36.jpg'
+    ],
     intent: 'Friendship',
     distanceKm: 35
   },
@@ -104,7 +132,11 @@ export const profiles: Profile[] = [
     bio: 'Writer, podcast addict, city walker. Looking for story swaps.',
     interests: ['Writing', 'Podcasts', 'City walks'],
     vibe: '#9BBDF9',
-    photoUrls: ['https://randomuser.me/api/portraits/women/52.jpg'],
+    photoUrls: [
+      'https://randomuser.me/api/portraits/women/52.jpg',
+      'https://randomuser.me/api/portraits/women/53.jpg',
+      'https://randomuser.me/api/portraits/women/54.jpg'
+    ],
     intent: 'Dating',
     distanceKm: 5
   }

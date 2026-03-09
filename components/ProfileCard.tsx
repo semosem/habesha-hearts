@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from 'react';
-import { Image, Platform, StyleSheet, View, Text } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
 import type { Profile } from '@/constants/profiles';
 
@@ -8,13 +9,63 @@ type Props = {
   highPriorityImage?: boolean;
 };
 
+const webBackdropImageStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  objectFit: 'cover',
+  backgroundColor: '#1A2233',
+  width: '100%',
+  height: '100%',
+} as const;
+
+type ProfileCardStyles = {
+  card: ViewStyle;
+  avatar: ViewStyle;
+  backdropImage: ImageStyle;
+  backdropFallback: ViewStyle;
+  backdropShade: ViewStyle;
+  photoBottomFade: ViewStyle;
+  photoIndicators: ViewStyle;
+  photoIndicator: ViewStyle;
+  photoIndicatorActive: ViewStyle;
+  photoNavLayer: ViewStyle;
+  photoIdentity: ViewStyle;
+  photoNavZone: ViewStyle;
+  content: ViewStyle;
+  name: TextStyle;
+  meta: TextStyle;
+  bio: TextStyle;
+  avatarText: TextStyle;
+  fallbackCaption: TextStyle;
+};
+
 function ProfileCardComponent({ profile, highPriorityImage = false }: Props) {
-  const photo = profile.photoUrls?.[0];
+  const photos = profile.photoUrls?.length ? profile.photoUrls : [];
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const photo = photos[photoIndex];
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     setImageError(false);
-  }, [photo]);
+    setPhotoIndex(0);
+  }, [profile.id]);
+
+  const canCyclePhotos = photos.length > 1;
+
+  const showPreviousPhoto = () => {
+    if (!canCyclePhotos) return;
+    setImageError(false);
+    setPhotoIndex((current) => (current === 0 ? photos.length - 1 : current - 1));
+  };
+
+  const showNextPhoto = () => {
+    if (!canCyclePhotos) return;
+    setImageError(false);
+    setPhotoIndex((current) => (current === photos.length - 1 ? 0 : current + 1));
+  };
 
   return (
     <View style={[styles.card, { backgroundColor: '#121826' }]}>
@@ -27,47 +78,56 @@ function ProfileCardComponent({ profile, highPriorityImage = false }: Props) {
             height={220}
             loading={highPriorityImage ? 'eager' : 'lazy'}
             fetchPriority={highPriorityImage ? 'high' : 'auto'}
-            style={styles.webHeroImage}
+            style={webBackdropImageStyle}
             onError={() => setImageError(true)}
           />
         ) : (
           <Image
             source={{ uri: photo }}
-            style={styles.heroImage}
+            style={styles.backdropImage}
             resizeMode="cover"
             onError={() => setImageError(true)}
           />
         )
       ) : (
-        <View style={styles.heroFallback}>
+        <View style={styles.backdropFallback}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{profile.name.slice(0, 1)}</Text>
           </View>
           <Text style={styles.fallbackCaption}>Photo coming soon</Text>
         </View>
       )}
-      <View style={styles.content}>
-        <View style={styles.headerRow}>
-          <Text style={styles.name} numberOfLines={1}>
-            {profile.name}
-          </Text>
-          <Text style={styles.meta} numberOfLines={1}>
-          {profile.age} • {profile.city}
-          {profile.distanceKm ? ` • ${profile.distanceKm} km` : ''}
-          </Text>
-        </View>
-        <Text style={styles.bio} numberOfLines={3}>
-          {profile.bio}
-        </Text>
-        <View style={styles.tagRow}>
-          {profile.interests.slice(0, 3).map((tag) => (
-            <View key={tag} style={styles.tag}>
-              <Text style={styles.tagText} numberOfLines={1}>
-                {tag}
-              </Text>
-            </View>
+      <View style={styles.backdropShade} />
+      <View style={styles.photoBottomFade} />
+      {canCyclePhotos ? (
+        <View pointerEvents="none" style={styles.photoIndicators}>
+          {photos.map((item, idx) => (
+            <View
+              key={`${profile.id}-${item}-${idx}`}
+              style={[styles.photoIndicator, idx === photoIndex && styles.photoIndicatorActive]}
+            />
           ))}
         </View>
+      ) : null}
+      {canCyclePhotos ? (
+        <View style={styles.photoNavLayer}>
+          <Pressable style={styles.photoNavZone} onPress={showPreviousPhoto} />
+          <Pressable style={styles.photoNavZone} onPress={showNextPhoto} />
+        </View>
+      ) : null}
+      <View style={styles.photoIdentity}>
+        <Text style={styles.name} numberOfLines={1}>
+          {profile.name}, {profile.age}
+        </Text>
+        <Text style={styles.meta} numberOfLines={1}>
+          {profile.city}
+          {profile.distanceKm ? ` • ${profile.distanceKm} km` : ''}
+        </Text>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.bio} numberOfLines={1} ellipsizeMode="tail">
+          {profile.bio}
+        </Text>
       </View>
     </View>
   );
@@ -75,21 +135,23 @@ function ProfileCardComponent({ profile, highPriorityImage = false }: Props) {
 
 export const ProfileCard = memo(ProfileCardComponent);
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<ProfileCardStyles>({
   card: {
     width: '100%',
-    height: 500,
-    borderRadius: 18,
-    padding: 18,
+    height: '100%',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 12 },
     elevation: 10,
-    gap: 10,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-end'
   },
   avatar: {
     width: 64,
@@ -100,35 +162,103 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6
   },
-  heroImage: {
+  backdropImage: {
+    ...StyleSheet.absoluteFillObject,
     width: '100%',
-    height: 220,
-    borderRadius: 14,
-    marginBottom: 10,
-    backgroundColor: '#1A2233'
-  },
-  webHeroImage: {
-    width: '100%',
-    height: 220,
-    borderRadius: 14,
-    marginBottom: 10,
-    objectFit: 'cover',
+    height: '100%',
     backgroundColor: '#1A2233',
-    display: 'block'
-  } as const,
-  heroFallback: {
-    width: '100%',
-    height: 220,
-    borderRadius: 14,
-    marginBottom: 10,
+  },
+  backdropFallback: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: '#24304a',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10
   },
-  content: {
+  backdropShade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(5, 10, 18, 0.16)',
+  },
+  photoBottomFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: '78%',
+    justifyContent: 'flex-end',
+    backgroundColor: 'transparent',
+  },
+  photoIndicators: {
+    position: 'absolute',
+    top: 10,
+    left: 12,
+    right: 12,
+    zIndex: 3,
+    flexDirection: 'row',
+    gap: 6,
+  },
+  photoIndicator: {
     flex: 1,
-    justifyContent: 'space-between'
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.32)',
+  },
+  photoIndicatorActive: {
+    backgroundColor: '#F0A500',
+  },
+  photoNavLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '78%',
+    zIndex: 2,
+    flexDirection: 'row',
+  },
+  photoIdentity: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    top: 78,
+    zIndex: 3,
+    paddingTop: 0,
+    backgroundColor: 'transparent',
+  },
+  photoNavZone: {
+    flex: 1,
+  },
+  content: {
+    width: '100%',
+    marginTop: '78%',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 10,
+    minHeight: 60,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(10, 16, 29, 0.96)',
+  },
+  name: {
+    fontSize: 22,
+    color: '#FFFFFF',
+    fontWeight: '800',
+    textShadowColor: 'rgba(0,0,0,0.72)',
+    textShadowRadius: 14,
+    textShadowOffset: { width: 0, height: 3 },
+  },
+  meta: {
+    color: '#F2F4F8',
+    fontSize: 13,
+    opacity: 0.94,
+    fontWeight: '700',
+    marginTop: 3,
+    textShadowColor: 'rgba(0,0,0,0.58)',
+    textShadowRadius: 10,
+    textShadowOffset: { width: 0, height: 2 },
+  },
+  bio: {
+    color: '#E4E9F2',
+    fontSize: 14,
+    lineHeight: 18,
   },
   avatarText: {
     color: '#F8F9FB',
@@ -140,44 +270,5 @@ const styles = StyleSheet.create({
     color: '#DCE5F5',
     fontSize: 13,
     fontWeight: '600'
-  },
-  headerRow: {
-    gap: 4
-  },
-  name: {
-    fontSize: 24,
-    color: '#F8F9FB',
-    fontWeight: '800'
-  },
-  meta: {
-    color: '#C7CFDB',
-    fontSize: 14,
-    opacity: 0.8,
-    fontWeight: '600'
-  },
-  bio: {
-    color: '#E4E9F2',
-    fontSize: 16,
-    lineHeight: 22,
-    minHeight: 66,
-    marginTop: 6
-  },
-  tagRow: {
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    gap: 8,
-    marginTop: 6,
-    minHeight: 36
-  },
-  tag: {
-    backgroundColor: 'rgba(199,161,122,0.2)',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6
-  },
-  tagText: {
-    color: '#F8F9FB',
-    fontWeight: '700',
-    fontSize: 12
   }
 });
