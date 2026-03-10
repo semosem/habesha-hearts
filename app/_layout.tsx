@@ -44,6 +44,7 @@ function RootNavigator() {
   const inAuthGroup = segments[0] === '(auth)';
   const inOnboardingGroup = segments[0] === '(onboarding)';
   const inTabsGroup = segments[0] === '(tabs)';
+  const inProfileDetail = segments[0] === 'profiles';
   const navigationReady = !!rootNavigationState?.key;
 
   useEffect(() => {
@@ -64,10 +65,10 @@ function RootNavigator() {
       return;
     }
 
-    if (status === 'signed_in_ready' && !inTabsGroup) {
+    if (status === 'signed_in_ready' && !inTabsGroup && !inProfileDetail) {
       router.replace('/(tabs)');
     }
-  }, [inAuthGroup, inOnboardingGroup, inTabsGroup, navigationReady, router, status]);
+  }, [inAuthGroup, inOnboardingGroup, inProfileDetail, inTabsGroup, navigationReady, router, status]);
 
   return (
     <>
@@ -75,6 +76,7 @@ function RootNavigator() {
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="profiles/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       {status === 'loading' ? (

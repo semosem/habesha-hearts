@@ -1,4 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   Animated,
@@ -27,6 +28,7 @@ const DEFAULT_USER = {
 
 export default function SwipeScreen() {
   const { t } = useLocale();
+  const router = useRouter();
   const [availableProfiles, setAvailableProfiles] = useState<Profile[]>(seedProfiles);
   const [liked, setLiked] = useState<Profile[]>([]);
   const [passed, setPassed] = useState<Profile[]>([]);
@@ -39,6 +41,11 @@ export default function SwipeScreen() {
 
   const pan = useRef(new Animated.ValueXY()).current;
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const availableProfilesRef = useRef<Profile[]>(seedProfiles);
+  const indexRef = useRef(0);
+
+  availableProfilesRef.current = availableProfiles;
+  indexRef.current = index;
 
   const rotate = pan.x.interpolate({
     inputRange: [-200, 0, 200],
@@ -184,6 +191,15 @@ export default function SwipeScreen() {
         useNativeDriver: false,
       }),
       onPanResponderRelease: (_, gesture) => {
+        if (
+          Math.abs(gesture.dx) < 8 &&
+          Math.abs(gesture.dy) < 8 &&
+          availableProfilesRef.current.length
+        ) {
+          router.push(`/profiles/${availableProfilesRef.current[indexRef.current].id}`);
+          resetPosition();
+          return;
+        }
         if (gesture.dx > SWIPE_THRESHOLD) {
           forceSwipe('right');
           return;

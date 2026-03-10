@@ -14,22 +14,25 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: 'rgba(255,255,255,0.68)',
+        tabBarActiveTintColor: '#F6EBDD',
+        tabBarInactiveTintColor: 'rgba(205, 183, 156, 0.68)',
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarShowLabel: !compactTabs,
-        tabBarBackground: () => <View style={{ flex: 1, backgroundColor: '#020407' }} />,
+        tabBarBackground: () => <View style={{ flex: 1, backgroundColor: '#060A12' }} />,
         tabBarStyle: {
-          backgroundColor: '#020407',
-          borderTopColor: 'rgba(255,255,255,0.08)',
-          height: compactTabs ? 70 : 78,
-          paddingTop: 6,
-          paddingBottom: compactTabs ? 6 : 8,
+          backgroundColor: '#060A12',
+          borderTopColor: 'rgba(240,165,0,0.12)',
+          height: compactTabs ? 68 : 76,
+          paddingTop: 8,
+          paddingBottom: compactTabs ? 8 : 10,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '700',
+        },
+        tabBarItemStyle: {
+          paddingTop: 2,
         },
       }}>
       <Tabs.Screen
@@ -38,15 +41,6 @@ export default function TabLayout() {
           title: t('swipe'),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={compactTabs ? 30 : 28} name="flame.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: t('explore'),
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={compactTabs ? 30 : 28} name="safari.fill" color={color} />
           ),
         }}
       />
@@ -79,6 +73,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <IconSymbol size={compactTabs ? 30 : 28} name="person.fill" color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

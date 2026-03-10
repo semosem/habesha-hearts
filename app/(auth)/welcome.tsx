@@ -1,13 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { profiles } from '@/constants/profiles';
 import { palette } from '@/constants/theme';
 import { useLocale } from '@/lib/i18n';
-
-const appLogo = require('../../assets/logo_app.jpg');
 
 export default function WelcomeScreen() {
   const { t } = useLocale();
@@ -24,11 +22,11 @@ export default function WelcomeScreen() {
 
     const timer = setInterval(() => {
       Animated.sequence([
-        Animated.timing(fade, { toValue: 0.16, duration: 500, useNativeDriver: true }),
-        Animated.timing(fade, { toValue: 1, duration: 650, useNativeDriver: true }),
+        Animated.timing(fade, { toValue: 0.22, duration: 900, useNativeDriver: true }),
+        Animated.timing(fade, { toValue: 1, duration: 1200, useNativeDriver: true }),
       ]).start();
       setPhotoIndex((current) => (current + 1) % heroPhotos.length);
-    }, 3200);
+    }, 6200);
 
     return () => clearInterval(timer);
   }, [fade, heroPhotos.length]);
@@ -47,9 +45,6 @@ export default function WelcomeScreen() {
         </View>
         <View style={styles.heroColumn}>
           <View style={styles.brandLockup}>
-            <View style={styles.logoFrame}>
-              <Image source={appLogo} style={styles.logoImage} />
-            </View>
             <Text style={styles.eyebrow}>Habesha Hearts</Text>
             <Text style={styles.title}>{t('welcomeTitle')}</Text>
           </View>
@@ -120,31 +115,13 @@ const styles = StyleSheet.create({
   },
   heroColumn: {
     flex: 1,
-    justifyContent: 'flex-end',
-    paddingTop: 84,
-    paddingBottom: 36,
+    justifyContent: 'center',
+    paddingTop: 96,
+    paddingBottom: 56,
   },
   brandLockup: {
     gap: 10,
     maxWidth: 308,
-  },
-  logoFrame: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    padding: 2,
-    backgroundColor: 'rgba(255, 245, 230, 0.16)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.16)',
-    shadowColor: '#000',
-    shadowOpacity: 0.14,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-  },
-  logoImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 15,
   },
   eyebrow: {
     color: palette.accent,
@@ -170,7 +147,7 @@ const styles = StyleSheet.create({
   },
   ctaPanel: {
     gap: 18,
-    paddingTop: 4,
+    paddingTop: 8,
   },
   ctaStack: {
     gap: 16,
@@ -195,7 +172,7 @@ const styles = StyleSheet.create({
   primaryText: {
     color: '#16130F',
     fontWeight: '600',
-    fontSize: 22,
+    fontSize: 20,
   },
   secondaryButton: {
     backgroundColor: 'rgba(255,255,255,0.08)',
@@ -205,7 +182,7 @@ const styles = StyleSheet.create({
   secondaryText: {
     color: '#FFFFFF',
     fontWeight: '600',
-    fontSize: 22,
+    fontSize: 20,
   },
   legalText: {
     color: 'rgba(255,255,255,0.82)',
