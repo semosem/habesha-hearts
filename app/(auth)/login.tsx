@@ -9,7 +9,7 @@ import { useLocale } from '@/lib/i18n';
 
 export default function LoginScreen() {
   const { t } = useLocale();
-  const { signIn } = useAuth();
+  const { signIn, isAuthenticating } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,8 @@ export default function LoginScreen() {
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <TouchableOpacity
-          style={styles.primaryButton}
+          style={[styles.primaryButton, isAuthenticating && styles.buttonDisabled]}
+          disabled={isAuthenticating}
           onPress={async () => {
             try {
               setError(null);
@@ -49,7 +50,7 @@ export default function LoginScreen() {
               setError(t('invalidCredentials'));
             }
           }}>
-          <Text style={styles.primaryText}>{t('login')}</Text>
+          <Text style={styles.primaryText}>{isAuthenticating ? 'Signing in…' : t('login')}</Text>
         </TouchableOpacity>
         <Link href="/(auth)/signup" style={styles.link}>
           {t('needAccount')}
@@ -78,6 +79,7 @@ const styles = StyleSheet.create({
   },
   error: { color: '#FF7D87', fontWeight: '700' },
   primaryButton: { backgroundColor: palette.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center' },
+  buttonDisabled: { opacity: 0.7 },
   primaryText: { color: '#FFFFFF', fontWeight: '800', fontSize: 16 },
   link: { color: palette.accent, fontWeight: '700', textAlign: 'center', marginTop: 6 },
   backButton: { alignItems: 'center', paddingTop: 8 },

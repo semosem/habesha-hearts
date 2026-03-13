@@ -7,7 +7,7 @@ import { useAuth } from '@/providers/AuthProvider';
 
 export default function VerifyScreen() {
   const { t } = useLocale();
-  const { session, verifyAccount, signOut } = useAuth();
+  const { session, verifyAccount, signOut, isAuthenticating } = useAuth();
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -17,11 +17,17 @@ export default function VerifyScreen() {
         </View>
         <Text style={styles.title}>{t('verifyTitle')}</Text>
         <Text style={styles.subtitle}>{t('verifyHint', { email: session?.email || '' })}</Text>
-        <TouchableOpacity style={styles.primaryButton} onPress={() => void verifyAccount()}>
+        <TouchableOpacity
+          style={[styles.primaryButton, isAuthenticating && styles.buttonDisabled]}
+          disabled={isAuthenticating}
+          onPress={() => void verifyAccount()}>
           <Text style={styles.primaryText}>{t('verifyNow')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} onPress={() => void signOut()}>
-          <Text style={styles.secondaryText}>{t('signOut')}</Text>
+        <TouchableOpacity
+          style={[styles.secondaryButton, isAuthenticating && styles.buttonDisabled]}
+          disabled={isAuthenticating}
+          onPress={() => void signOut()}>
+          <Text style={styles.secondaryText}>{isAuthenticating ? 'Signing out…' : t('signOut')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -35,6 +41,7 @@ const styles = StyleSheet.create({
   title: { color: palette.textPrimary, fontSize: 32, fontWeight: '900' },
   subtitle: { color: palette.textSecondary, fontSize: 16, lineHeight: 24 },
   primaryButton: { backgroundColor: palette.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center' },
+  buttonDisabled: { opacity: 0.7 },
   primaryText: { color: '#FFFFFF', fontWeight: '800', fontSize: 16 },
   secondaryButton: {
     backgroundColor: palette.surface,

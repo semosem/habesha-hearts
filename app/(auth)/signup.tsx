@@ -9,7 +9,7 @@ import { useAuth } from '@/providers/AuthProvider';
 
 export default function SignupScreen() {
   const { t } = useLocale();
-  const { signUp } = useAuth();
+  const { signUp, isAuthenticating } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -49,7 +49,8 @@ export default function SignupScreen() {
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <TouchableOpacity
-          style={styles.primaryButton}
+          style={[styles.primaryButton, isAuthenticating && styles.buttonDisabled]}
+          disabled={isAuthenticating}
           onPress={async () => {
             if (!email.trim() || !password.trim()) {
               setError(t('fillRequired'));
@@ -62,7 +63,7 @@ export default function SignupScreen() {
             setError(null);
             await signUp(email, password);
           }}>
-          <Text style={styles.primaryText}>{t('createAccount')}</Text>
+          <Text style={styles.primaryText}>{isAuthenticating ? 'Creating account…' : t('createAccount')}</Text>
         </TouchableOpacity>
         <Link href="/(auth)/login" style={styles.link}>
           {t('alreadyHaveAccount')}
@@ -91,6 +92,7 @@ const styles = StyleSheet.create({
   },
   error: { color: '#FF7D87', fontWeight: '700' },
   primaryButton: { backgroundColor: palette.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center' },
+  buttonDisabled: { opacity: 0.7 },
   primaryText: { color: '#FFFFFF', fontWeight: '800', fontSize: 16 },
   link: { color: palette.accent, fontWeight: '700', textAlign: 'center', marginTop: 6 },
   backButton: { alignItems: 'center', paddingTop: 8 },

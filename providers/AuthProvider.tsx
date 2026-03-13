@@ -1,10 +1,15 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 
 import {
   AuthSession,
   clearStoredSession,
+  createSessionTokens,
   getStoredCredentials,
   getStoredSession,
+  isRefreshWindowExpired,
+  isSessionExpired,
+  refreshSessionTokens,
   setStoredCredentials,
   setStoredSession,
 } from '@/lib/auth';
@@ -23,11 +28,13 @@ type OnboardingInput = {
 type AuthContextValue = {
   status: AuthStatus;
   session: AuthSession | null;
+  isAuthenticating: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   verifyAccount: () => Promise<void>;
   completeOnboarding: (input: OnboardingInput) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -42,53 +49,115 @@ function deriveStatus(session: AuthSession | null): AuthStatus {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [status, setStatus] = useState<AuthStatus>('loading');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  useEffect(() => {
-    const bootstrap = async () => {
-      const storedSession = await getStoredSession();
-      setSession(storedSession);
-      setStatus(deriveStatus(storedSession));
-    };
-    void bootstrap();
+  const applySession = useCallback((nextSession: AuthSession | null) => {
+    setSession(nextSession);
+    setStatus(deriveStatus(nextSession));
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string) => {
-    const normalizedEmail = email.trim().toLowerCase();
-    const newSession: AuthSession = {
-      userId: `user-${Date.now()}`,
-      email: normalizedEmail,
-      verified: false,
-      onboardingComplete: false,
-      interests: [],
-      createdAt: new Date().toISOString(),
-    };
-
-    await setStoredCredentials({ email: normalizedEmail, password });
-    await setStoredSession(newSession);
-    setSession(newSession);
-    setStatus(deriveStatus(newSession));
-  }, []);
-
-  const signIn = useCallback(async (email: string, password: string) => {
-    const normalizedEmail = email.trim().toLowerCase();
-    const credentials = await getStoredCredentials();
+  const refreshSession = useCallback(async () => {
     const storedSession = await getStoredSession();
 
-    if (!credentials || credentials.email !== normalizedEmail || credentials.password !== password || !storedSession) {
-      throw new Error('Invalid credentials');
+    if (!storedSession) {
+      applySession(null);
+      return;
     }
 
-    setSession(storedSession);
-    setStatus(deriveStatus(storedSession));
-  }, []);
+    const hasTokenState = Boolean(storedSession.accessToken && storedSession.refreshToken && storedSession.expiresAt);
+    const normalizedSession = hasTokenState
+      ? storedSession
+      : {
+          ...storedSession,
+          ...createSessionTokens(),
+        };
+
+    if (!hasTokenState) {
+      await setStoredSession(normalizedSession);
+    }
+
+    if (!isSessionExpired(normalizedSession)) {
+      applySession(normalizedSession);
+      return;
+    }
+
+    if (isRefreshWindowExpired(normalizedSession)) {
+      await clearStoredSession();
+      applySession(null);
+      return;
+    }
+
+    const refreshedSession = refreshSessionTokens(normalizedSession);
+    await setStoredSession(refreshedSession);
+    applySession(refreshedSession);
+  }, [applySession]);
+
+  useEffect(() => {
+    void refreshSession();
+  }, [refreshSession]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
+      if (nextState === 'active') {
+        void refreshSession();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [refreshSession]);
+
+  const signUp = useCallback(async (email: string, password: string) => {
+    setIsAuthenticating(true);
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const now = Date.now();
+      const newSession: AuthSession = {
+        userId: `user-${now}`,
+        email: normalizedEmail,
+        verified: false,
+        onboardingComplete: false,
+        interests: [],
+        createdAt: new Date(now).toISOString(),
+        ...createSessionTokens(now),
+      };
+
+      await setStoredCredentials({ email: normalizedEmail, password });
+      await setStoredSession(newSession);
+      applySession(newSession);
+    } finally {
+      setIsAuthenticating(false);
+    }
+  }, [applySession]);
+
+  const signIn = useCallback(async (email: string, password: string) => {
+    setIsAuthenticating(true);
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const credentials = await getStoredCredentials();
+      const storedSession = await getStoredSession();
+
+      if (!credentials || credentials.email !== normalizedEmail || credentials.password !== password || !storedSession) {
+        throw new Error('Invalid credentials');
+      }
+
+      const refreshedSession = refreshSessionTokens({
+        ...storedSession,
+        email: normalizedEmail,
+      });
+
+      await setStoredSession(refreshedSession);
+      applySession(refreshedSession);
+    } finally {
+      setIsAuthenticating(false);
+    }
+  }, [applySession]);
 
   const verifyAccount = useCallback(async () => {
     if (!session) return;
     const nextSession = { ...session, verified: true };
     await setStoredSession(nextSession);
-    setSession(nextSession);
-    setStatus(deriveStatus(nextSession));
-  }, [session]);
+    applySession(nextSession);
+  }, [applySession, session]);
 
   const completeOnboarding = useCallback(
     async (input: OnboardingInput) => {
@@ -116,21 +185,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         interests: input.interests,
       };
       await setStoredSession(nextSession);
-      setSession(nextSession);
-      setStatus(deriveStatus(nextSession));
+      applySession(nextSession);
     },
-    [session]
+    [applySession, session]
   );
 
   const signOut = useCallback(async () => {
-    await clearStoredSession();
-    setSession(null);
-    setStatus('signed_out');
-  }, []);
+    setIsAuthenticating(true);
+    try {
+      await clearStoredSession();
+      applySession(null);
+    } finally {
+      setIsAuthenticating(false);
+    }
+  }, [applySession]);
 
   const value = useMemo(
-    () => ({ status, session, signIn, signUp, verifyAccount, completeOnboarding, signOut }),
-    [completeOnboarding, session, signIn, signOut, signUp, status, verifyAccount]
+    () => ({ status, session, isAuthenticating, signIn, signUp, verifyAccount, completeOnboarding, signOut, refreshSession }),
+    [completeOnboarding, isAuthenticating, refreshSession, session, signIn, signOut, signUp, status, verifyAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
