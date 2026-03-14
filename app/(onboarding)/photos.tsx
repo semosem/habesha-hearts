@@ -1,22 +1,14 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { palette } from '@/constants/theme';
 import { useLocale } from '@/lib/i18n';
-import { getJSON, setJSON, STORAGE_KEYS } from '@/lib/storage';
-
-const DEFAULT_USER = {
-  name: '',
-  city: 'Addis Ababa',
-  intent: 'Dating',
-  photoUrl: '',
-};
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function OnboardingPhotosScreen() {
   const { t } = useLocale();
-  const [photoUrl, setPhotoUrl] = useState('');
+  const { onboardingDraft, updateOnboardingDraft } = useAuth();
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -38,19 +30,13 @@ export default function OnboardingPhotosScreen() {
             <Text style={styles.messagePillText}>For now this step accepts an image URL. Later we should replace this with real upload.</Text>
           </View>
           <TextInput
-            value={photoUrl}
-            onChangeText={setPhotoUrl}
+            value={onboardingDraft.photoUrl}
+            onChangeText={(value) => updateOnboardingDraft({ photoUrl: value })}
             style={styles.input}
             placeholder={t('photoUrl')}
             placeholderTextColor={palette.textSecondary}
           />
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={async () => {
-              const currentUser = await getJSON(STORAGE_KEYS.currentUser, DEFAULT_USER);
-              await setJSON(STORAGE_KEYS.currentUser, { ...currentUser, photoUrl });
-              router.push('/(onboarding)/interests');
-            }}>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(onboarding)/interests')}>
             <Text style={styles.primaryText}>{t('continue')}</Text>
           </TouchableOpacity>
         </View>

@@ -1,25 +1,15 @@
-import { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { palette } from '@/constants/theme';
 import { useLocale } from '@/lib/i18n';
 import { useAuth } from '@/providers/AuthProvider';
-import { getJSON, STORAGE_KEYS } from '@/lib/storage';
-
-const DEFAULT_USER = {
-  name: '',
-  city: 'Addis Ababa',
-  intent: 'Dating',
-  photoUrl: '',
-};
 
 const INTERESTS = ['Buna', 'Music', 'Travel', 'Faith', 'Food', 'Film', 'Fitness', 'Books'];
 
 export default function OnboardingInterestsScreen() {
   const { t } = useLocale();
-  const { completeOnboarding } = useAuth();
-  const [selected, setSelected] = useState<string[]>([]);
+  const { onboardingDraft, updateOnboardingDraft, completeOnboarding } = useAuth();
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -39,33 +29,24 @@ export default function OnboardingInterestsScreen() {
         <View style={styles.formCard}>
           <View style={styles.chips}>
             {INTERESTS.map((interest) => {
-              const active = selected.includes(interest);
+              const active = onboardingDraft.interests.includes(interest);
               return (
                 <TouchableOpacity
                   key={interest}
                   style={[styles.chip, active && styles.chipActive]}
                   onPress={() =>
-                    setSelected((current) =>
-                      current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest]
-                    )
+                    updateOnboardingDraft({
+                      interests: onboardingDraft.interests.includes(interest)
+                        ? onboardingDraft.interests.filter((item) => item !== interest)
+                        : [...onboardingDraft.interests, interest],
+                    })
                   }>
                   <Text style={[styles.chipText, active && styles.chipTextActive]}>{interest}</Text>
                 </TouchableOpacity>
               );
             })}
           </View>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={async () => {
-              const currentUser = await getJSON(STORAGE_KEYS.currentUser, DEFAULT_USER);
-              await completeOnboarding({
-                name: currentUser.name,
-                city: currentUser.city,
-                intent: currentUser.intent,
-                photoUrl: currentUser.photoUrl,
-                interests: selected,
-              });
-            }}>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => void completeOnboarding()}>
             <Text style={styles.primaryText}>{t('finishSetup')}</Text>
           </TouchableOpacity>
         </View>

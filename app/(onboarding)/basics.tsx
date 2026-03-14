@@ -1,22 +1,14 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { LocaleSwitch } from '@/components/LocaleSwitch';
 import { palette } from '@/constants/theme';
 import { useLocale } from '@/lib/i18n';
-import { getJSON, setJSON, STORAGE_KEYS } from '@/lib/storage';
-
-const DEFAULT_USER = {
-  name: '',
-  city: 'Addis Ababa',
-  intent: 'Dating',
-  photoUrl: '',
-};
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function OnboardingBasicsScreen() {
   const { t } = useLocale();
-  const [user, setUser] = useState(DEFAULT_USER);
+  const { onboardingDraft, updateOnboardingDraft } = useAuth();
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -35,33 +27,27 @@ export default function OnboardingBasicsScreen() {
 
         <View style={styles.formCard}>
           <TextInput
-            value={user.name}
-            onChangeText={(value) => setUser((prev) => ({ ...prev, name: value }))}
+            value={onboardingDraft.name}
+            onChangeText={(value) => updateOnboardingDraft({ name: value })}
             style={styles.input}
             placeholder={t('name')}
             placeholderTextColor={palette.textSecondary}
           />
           <TextInput
-            value={user.city}
-            onChangeText={(value) => setUser((prev) => ({ ...prev, city: value }))}
+            value={onboardingDraft.city}
+            onChangeText={(value) => updateOnboardingDraft({ city: value })}
             style={styles.input}
             placeholder={t('city')}
             placeholderTextColor={palette.textSecondary}
           />
           <TextInput
-            value={user.intent}
-            onChangeText={(value) => setUser((prev) => ({ ...prev, intent: value }))}
+            value={onboardingDraft.intent}
+            onChangeText={(value) => updateOnboardingDraft({ intent: value })}
             style={styles.input}
             placeholder={t('intent')}
             placeholderTextColor={palette.textSecondary}
           />
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={async () => {
-              const currentUser = await getJSON(STORAGE_KEYS.currentUser, DEFAULT_USER);
-              await setJSON(STORAGE_KEYS.currentUser, { ...currentUser, ...user });
-              router.push('/(onboarding)/photos');
-            }}>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(onboarding)/photos')}>
             <Text style={styles.primaryText}>{t('continue')}</Text>
           </TouchableOpacity>
         </View>

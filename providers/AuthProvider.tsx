@@ -25,19 +25,37 @@ type OnboardingInput = {
   interests: string[];
 };
 
+type OnboardingDraft = {
+  name: string;
+  city: string;
+  intent: string;
+  photoUrl: string;
+  interests: string[];
+};
+
 type AuthContextValue = {
   status: AuthStatus;
   session: AuthSession | null;
+  onboardingDraft: OnboardingDraft;
   isAuthenticating: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   verifyAccount: () => Promise<void>;
-  completeOnboarding: (input: OnboardingInput) => Promise<void>;
+  updateOnboardingDraft: (patch: Partial<OnboardingDraft>) => void;
+  completeOnboarding: (input?: Partial<OnboardingInput>) => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+const DEFAULT_ONBOARDING_DRAFT: OnboardingDraft = {
+  name: '',
+  city: 'Addis Ababa',
+  intent: 'Dating',
+  photoUrl: '',
+  interests: [],
+};
 
 function deriveStatus(session: AuthSession | null): AuthStatus {
   if (!session) return 'signed_out';
@@ -49,11 +67,16 @@ function deriveStatus(session: AuthSession | null): AuthStatus {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [status, setStatus] = useState<AuthStatus>('loading');
+  const [onboardingDraft, setOnboardingDraft] = useState<OnboardingDraft>(DEFAULT_ONBOARDING_DRAFT);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const applySession = useCallback((nextSession: AuthSession | null) => {
     setSession(nextSession);
     setStatus(deriveStatus(nextSession));
+  }, []);
+
+  const updateOnboardingDraft = useCallback((patch: Partial<OnboardingDraft>) => {
+    setOnboardingDraft((current) => ({ ...current, ...patch }));
   }, []);
 
   const refreshSession = useCallback(async () => {
@@ -84,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isRefreshWindowExpired(normalizedSession)) {
       await clearStoredSession();
       await resetUserScopedState();
+      setOnboardingDraft(DEFAULT_ONBOARDING_DRAFT);
       applySession(null);
       return;
     }
@@ -123,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
 
       await resetUserScopedState();
+      setOnboardingDraft(DEFAULT_ONBOARDING_DRAFT);
       await setStoredCredentials({ email: normalizedEmail, password });
       await setStoredSession(newSession);
       applySession(newSession);
@@ -148,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       await resetUserScopedState();
+      setOnboardingDraft(DEFAULT_ONBOARDING_DRAFT);
       await setStoredSession(refreshedSession);
       applySession(refreshedSession);
     } finally {
@@ -163,29 +189,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applySession, session]);
 
   const completeOnboarding = useCallback(
-    async (input: OnboardingInput) => {
+    async (input?: Partial<OnboardingInput>) => {
       if (!session) return;
+
+      const finalDraft = {
+        ...onboardingDraft,
+        ...input,
+      };
 
       const currentUser = await getJSON(STORAGE_KEYS.currentUser, DEFAULT_CURRENT_USER);
 
       await setJSON(STORAGE_KEYS.currentUser, {
         ...currentUser,
-        name: input.name,
-        city: input.city,
-        intent: input.intent,
-        photoUrl: input.photoUrl,
-        interests: input.interests,
+        name: finalDraft.name,
+        city: finalDraft.city,
+        intent: finalDraft.intent,
+        photoUrl: finalDraft.photoUrl,
+        interests: finalDraft.interests,
       });
 
       const nextSession = {
         ...session,
         onboardingComplete: true,
-        interests: input.interests,
+        interests: finalDraft.interests,
       };
       await setStoredSession(nextSession);
+      setOnboardingDraft(DEFAULT_ONBOARDING_DRAFT);
       applySession(nextSession);
     },
-    [applySession, session]
+    [applySession, onboardingDraft, session]
   );
 
   const signOut = useCallback(async () => {
@@ -193,6 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await clearStoredSession();
       await resetUserScopedState();
+      setOnboardingDraft(DEFAULT_ONBOARDING_DRAFT);
       applySession(null);
     } finally {
       setIsAuthenticating(false);
@@ -200,8 +233,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applySession]);
 
   const value = useMemo(
-    () => ({ status, session, isAuthenticating, signIn, signUp, verifyAccount, completeOnboarding, signOut, refreshSession }),
-    [completeOnboarding, isAuthenticating, refreshSession, session, signIn, signOut, signUp, status, verifyAccount]
+    () => ({
+      status,
+      session,
+      onboardingDraft,
+      isAuthenticating,
+      signIn,
+      signUp,
+      verifyAccount,
+      updateOnboardingDraft,
+      completeOnboarding,
+      signOut,
+      refreshSession,
+    }),
+    [completeOnboarding, isAuthenticating, onboardingDraft, refreshSession, session, signIn, signOut, signUp, status, updateOnboardingDraft, verifyAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
