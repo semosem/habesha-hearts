@@ -42,9 +42,11 @@ function RootNavigator() {
   const rootNavigationState = useRootNavigationState();
   const { status } = useAuth();
   const inAuthGroup = segments[0] === '(auth)';
+  const onVerifyScreen = inAuthGroup && segments[1] === 'verify';
   const inOnboardingGroup = segments[0] === '(onboarding)';
   const inTabsGroup = segments[0] === '(tabs)';
   const inProfileDetail = segments[0] === 'profiles';
+  const inSettingsScreen = segments[0] === 'settings';
   const navigationReady = !!rootNavigationState?.key;
 
   useEffect(() => {
@@ -55,7 +57,7 @@ function RootNavigator() {
       return;
     }
 
-    if (status === 'signed_in_unverified' && !inAuthGroup) {
+    if (status === 'signed_in_unverified' && !onVerifyScreen) {
       router.replace('/(auth)/verify');
       return;
     }
@@ -65,10 +67,10 @@ function RootNavigator() {
       return;
     }
 
-    if (status === 'signed_in_ready' && !inTabsGroup && !inProfileDetail) {
+    if (status === 'signed_in_ready' && !inTabsGroup && !inProfileDetail && !inSettingsScreen) {
       router.replace('/(tabs)');
     }
-  }, [inAuthGroup, inOnboardingGroup, inProfileDetail, inTabsGroup, navigationReady, router, status]);
+  }, [inAuthGroup, inOnboardingGroup, inProfileDetail, inSettingsScreen, inTabsGroup, navigationReady, onVerifyScreen, router, status]);
 
   return (
     <>
@@ -76,6 +78,14 @@ function RootNavigator() {
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="settings"
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+          }}
+        />
         <Stack.Screen name="profiles/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>

@@ -1,4 +1,4 @@
-import { deleteSecureValue, getSecureJSON, setSecureJSON } from '@/lib/secureStorage';
+import { deleteStoredValue, getStoredJSON, setStoredJSON } from '@/lib/sessionStorage';
 
 export const AUTH_STORAGE_KEYS = {
   credentials: '@hh/auth/credentials',
@@ -57,21 +57,21 @@ export function refreshSessionTokens(session: AuthSession, now = Date.now()): Au
 }
 
 export async function getStoredCredentials() {
-  return getSecureJSON<StoredCredentials | null>(AUTH_STORAGE_KEYS.credentials, null);
+  return getStoredJSON<StoredCredentials | null>(AUTH_STORAGE_KEYS.credentials, null);
 }
 
 export async function setStoredCredentials(value: StoredCredentials) {
-  return setSecureJSON(AUTH_STORAGE_KEYS.credentials, value);
+  return setStoredJSON(AUTH_STORAGE_KEYS.credentials, value);
 }
 
 export async function getStoredSession() {
-  return getSecureJSON<AuthSession | null>(AUTH_STORAGE_KEYS.session, null);
+  return getStoredJSON<AuthSession | null>(AUTH_STORAGE_KEYS.session, null);
 }
 
 export async function setStoredSession(value: AuthSession) {
-  return setSecureJSON(AUTH_STORAGE_KEYS.session, value);
+  return setStoredJSON(AUTH_STORAGE_KEYS.session, value);
 }
 
 export async function clearStoredSession() {
-  return deleteSecureValue(AUTH_STORAGE_KEYS.session);
+  return deleteStoredValue(AUTH_STORAGE_KEYS.session);
 }

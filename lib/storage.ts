@@ -10,6 +10,13 @@ export const STORAGE_KEYS = {
   blocked: '@hh/blocked'
 } as const;
 
+export const DEFAULT_CURRENT_USER = {
+  name: 'You',
+  city: 'Addis Ababa',
+  intent: 'Dating',
+  photoUrl: '',
+};
+
 export async function getJSON<T>(key: string, fallback: T): Promise<T> {
   try {
     const raw = await AsyncStorage.getItem(key);
@@ -26,6 +33,17 @@ export async function setJSON<T>(key: string, value: T): Promise<void> {
   } catch {
     // swallow; best effort
   }
+}
+
+export async function resetUserScopedState(): Promise<void> {
+  await Promise.all([
+    setJSON(STORAGE_KEYS.currentUser, DEFAULT_CURRENT_USER),
+    setJSON(STORAGE_KEYS.likes, []),
+    setJSON(STORAGE_KEYS.passes, []),
+    setJSON(STORAGE_KEYS.matches, []),
+    setJSON(STORAGE_KEYS.messages, {}),
+    setJSON(STORAGE_KEYS.blocked, []),
+  ]);
 }
 
 export type Match = {

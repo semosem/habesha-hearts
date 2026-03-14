@@ -23,9 +23,9 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#060A12',
           borderTopColor: 'rgba(240,165,0,0.12)',
-          height: compactTabs ? 68 : 76,
+          height: compactTabs ? 72 : 80,
           paddingTop: 8,
-          paddingBottom: compactTabs ? 8 : 10,
+          paddingBottom: compactTabs ? 12 : 14,
         },
         tabBarLabelStyle: {
           fontSize: 12,

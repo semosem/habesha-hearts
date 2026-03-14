@@ -7,6 +7,8 @@ import { palette } from '@/constants/theme';
 import { useLocale } from '@/lib/i18n';
 import { useAuth } from '@/providers/AuthProvider';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function SignupScreen() {
   const { t } = useLocale();
   const { signUp, isAuthenticating } = useAuth();
@@ -61,8 +63,14 @@ export default function SignupScreen() {
             style={[styles.primaryButton, isAuthenticating && styles.buttonDisabled]}
             disabled={isAuthenticating}
             onPress={async () => {
-              if (!email.trim() || !password.trim()) {
+              const normalizedEmail = email.trim().toLowerCase();
+
+              if (!normalizedEmail || !password.trim()) {
                 setError(t('fillRequired'));
+                return;
+              }
+              if (!EMAIL_REGEX.test(normalizedEmail)) {
+                setError(t('invalidEmail'));
                 return;
               }
               if (password !== confirmPassword) {
@@ -70,7 +78,7 @@ export default function SignupScreen() {
                 return;
               }
               setError(null);
-              await signUp(email, password);
+              await signUp(normalizedEmail, password);
             }}>
             <Text style={styles.primaryText}>{isAuthenticating ? 'Creating account…' : t('createAccount')}</Text>
           </TouchableOpacity>

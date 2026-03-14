@@ -13,7 +13,7 @@ import {
   setStoredCredentials,
   setStoredSession,
 } from '@/lib/auth';
-import { getJSON, setJSON, STORAGE_KEYS } from '@/lib/storage';
+import { DEFAULT_CURRENT_USER, getJSON, resetUserScopedState, setJSON, STORAGE_KEYS } from '@/lib/storage';
 
 type AuthStatus = 'loading' | 'signed_out' | 'signed_in_unverified' | 'signed_in_onboarding' | 'signed_in_ready';
 
@@ -83,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (isRefreshWindowExpired(normalizedSession)) {
       await clearStoredSession();
+      await resetUserScopedState();
       applySession(null);
       return;
     }
@@ -121,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...createSessionTokens(now),
       };
 
+      await resetUserScopedState();
       await setStoredCredentials({ email: normalizedEmail, password });
       await setStoredSession(newSession);
       applySession(newSession);
@@ -145,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: normalizedEmail,
       });
 
+      await resetUserScopedState();
       await setStoredSession(refreshedSession);
       applySession(refreshedSession);
     } finally {
@@ -163,12 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (input: OnboardingInput) => {
       if (!session) return;
 
-      const currentUser = await getJSON(STORAGE_KEYS.currentUser, {
-        name: 'You',
-        city: 'Addis Ababa',
-        intent: 'Dating',
-        photoUrl: '',
-      });
+      const currentUser = await getJSON(STORAGE_KEYS.currentUser, DEFAULT_CURRENT_USER);
 
       await setJSON(STORAGE_KEYS.currentUser, {
         ...currentUser,
@@ -194,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticating(true);
     try {
       await clearStoredSession();
+      await resetUserScopedState();
       applySession(null);
     } finally {
       setIsAuthenticating(false);

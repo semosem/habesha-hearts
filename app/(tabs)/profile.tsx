@@ -1,11 +1,11 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-import { LocaleSwitch } from '@/components/LocaleSwitch';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { palette } from '@/constants/theme';
 import { useLocale } from '@/lib/i18n';
-import { useAuth } from '@/providers/AuthProvider';
 import { getJSON, setJSON, STORAGE_KEYS } from '@/lib/storage';
 
 const DEFAULT_USER = {
@@ -17,7 +17,6 @@ const DEFAULT_USER = {
 
 export default function ProfileScreen() {
   const { t } = useLocale();
-  const { signOut } = useAuth();
   const [currentUser, setCurrentUser] = useState(DEFAULT_USER);
   const [likedCount, setLikedCount] = useState(0);
   const [passedCount, setPassedCount] = useState(0);
@@ -39,154 +38,254 @@ export default function ProfileScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>{t('yourProfile')}</Text>
-        <TextInput
-          placeholder={t('name')}
-          placeholderTextColor={palette.textSecondary}
-          style={styles.input}
-          value={currentUser.name}
-          onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, name: value }))}
-        />
-        <TextInput
-          placeholder={t('city')}
-          placeholderTextColor={palette.textSecondary}
-          style={styles.input}
-          value={currentUser.city}
-          onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, city: value }))}
-        />
-        <TextInput
-          placeholder={t('intent')}
-          placeholderTextColor={palette.textSecondary}
-          style={styles.input}
-          value={currentUser.intent}
-          onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, intent: value }))}
-        />
-        <TextInput
-          placeholder={t('photoUrl')}
-          placeholderTextColor={palette.textSecondary}
-          style={styles.input}
-          value={currentUser.photoUrl}
-          onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, photoUrl: value }))}
-        />
-
-        <View style={styles.languageRow}>
-          <Text style={styles.languageLabel}>{t('language')}</Text>
-          <LocaleSwitch />
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.backgroundGlowTop} />
+      <View style={styles.backgroundGlowBottom} />
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.heroRow}>
+          <View style={styles.heroBlock}>
+            <Text style={styles.eyebrow}>Your space</Text>
+            <Text style={styles.title}>{t('yourProfile')}</Text>
+            <Text style={styles.subtitle}>Shape how people first see you.</Text>
+          </View>
+          <TouchableOpacity style={styles.settingsButton} onPress={() => router.push('/settings')}>
+            <IconSymbol name="gearshape.fill" size={18} color={palette.textPrimary} />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={async () => {
-            await setJSON(STORAGE_KEYS.currentUser, currentUser);
-          }}>
-          <Text style={styles.primaryButtonText}>{t('saveProfile')}</Text>
-        </TouchableOpacity>
+        <View style={styles.summaryCard}>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarText}>{currentUser.name.trim().slice(0, 1).toUpperCase() || 'Y'}</Text>
+          </View>
+          <View style={styles.summaryTextBlock}>
+            <Text style={styles.summaryName}>{currentUser.name || 'You'}</Text>
+            <Text style={styles.summaryMeta}>{[currentUser.city, currentUser.intent].filter(Boolean).join(' · ')}</Text>
+          </View>
+        </View>
 
         <View style={styles.statsRow}>
-          <Text style={styles.statChip}>Heart {t('likedLabel', { count: likedCount })}</Text>
-          <Text style={styles.statChip}>Skip {t('passedLabel', { count: passedCount })}</Text>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{likedCount}</Text>
+            <Text style={styles.statLabel}>Hearts</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{passedCount}</Text>
+            <Text style={styles.statLabel}>Passes</Text>
+          </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={async () => {
-            await setJSON(STORAGE_KEYS.likes, []);
-            await setJSON(STORAGE_KEYS.passes, []);
-            await setJSON(STORAGE_KEYS.matches, []);
-            await setJSON(STORAGE_KEYS.messages, {});
-            await setJSON(STORAGE_KEYS.blocked, []);
-            setLikedCount(0);
-            setPassedCount(0);
-          }}>
-          <Text style={styles.secondaryButtonText}>{t('resetLikesPasses')}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.signOutButton} onPress={() => void signOut()}>
-          <Text style={styles.signOutButtonText}>{t('signOut')}</Text>
-        </TouchableOpacity>
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionEyebrow}>Profile details</Text>
+          <TextInput
+            placeholder={t('name')}
+            placeholderTextColor={palette.textSecondary}
+            style={styles.input}
+            value={currentUser.name}
+            onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, name: value }))}
+          />
+          <TextInput
+            placeholder={t('city')}
+            placeholderTextColor={palette.textSecondary}
+            style={styles.input}
+            value={currentUser.city}
+            onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, city: value }))}
+          />
+          <TextInput
+            placeholder={t('intent')}
+            placeholderTextColor={palette.textSecondary}
+            style={styles.input}
+            value={currentUser.intent}
+            onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, intent: value }))}
+          />
+          <TextInput
+            placeholder={t('photoUrl')}
+            placeholderTextColor={palette.textSecondary}
+            style={styles.input}
+            value={currentUser.photoUrl}
+            onChangeText={(value) => setCurrentUser((prev) => ({ ...prev, photoUrl: value }))}
+          />
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={async () => {
+              await setJSON(STORAGE_KEYS.currentUser, currentUser);
+            }}>
+            <Text style={styles.primaryButtonText}>{t('saveProfile')}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
     backgroundColor: palette.background,
-    paddingHorizontal: 18,
+  },
+  backgroundGlowTop: {
+    position: 'absolute',
+    top: -76,
+    right: -64,
+    width: 210,
+    height: 210,
+    borderRadius: 999,
+    backgroundColor: 'rgba(166, 30, 42, 0.12)',
+  },
+  backgroundGlowBottom: {
+    position: 'absolute',
+    bottom: 120,
+    left: -90,
+    width: 220,
+    height: 220,
+    borderRadius: 999,
+    backgroundColor: 'rgba(217, 164, 65, 0.06)',
   },
   content: {
-    paddingTop: 10,
-    paddingBottom: 120,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 132,
     gap: 12,
+  },
+  heroRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  heroBlock: {
+    flex: 1,
+    gap: 2,
+    paddingHorizontal: 4,
+  },
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  eyebrow: {
+    color: palette.accent,
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   title: {
     color: palette.textPrimary,
     fontSize: 28,
+    lineHeight: 32,
+    fontWeight: '900',
+    letterSpacing: -0.25,
+  },
+  subtitle: {
+    color: palette.textSecondary,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  summaryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(28, 21, 24, 0.92)',
+    borderRadius: 22,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  avatarCircle: {
+    width: 54,
+    height: 54,
+    borderRadius: 999,
+    backgroundColor: palette.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    color: '#FFFFFF',
+    fontSize: 22,
     fontWeight: '900',
   },
+  summaryTextBlock: {
+    flex: 1,
+    gap: 2,
+  },
+  summaryName: {
+    color: palette.textPrimary,
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  summaryMeta: {
+    color: palette.textSecondary,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(42, 30, 34, 0.9)',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    gap: 2,
+  },
+  statValue: {
+    color: palette.textPrimary,
+    fontSize: 20,
+    fontWeight: '900',
+  },
+  statLabel: {
+    color: palette.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  sectionCard: {
+    backgroundColor: 'rgba(28, 21, 24, 0.92)',
+    borderRadius: 22,
+    padding: 14,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  sectionEyebrow: {
+    color: palette.accent,
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
   input: {
-    backgroundColor: palette.surface,
-    borderRadius: 16,
+    backgroundColor: palette.surfaceLight,
+    borderRadius: 15,
     paddingHorizontal: 14,
-    paddingVertical: 14,
+    paddingVertical: 13,
     color: palette.textPrimary,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.06)',
   },
-  languageRow: {
-    gap: 10,
-    paddingTop: 4,
-  },
-  languageLabel: {
-    color: palette.textPrimary,
-    fontSize: 14,
-    fontWeight: '800',
-  },
   primaryButton: {
     backgroundColor: palette.primary,
-    borderRadius: 16,
-    paddingVertical: 14,
+    borderRadius: 999,
+    minHeight: 52,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
   primaryButtonText: {
     color: '#FFFFFF',
     fontWeight: '800',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  statChip: {
-    backgroundColor: palette.surfaceLight,
-    color: palette.textPrimary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 14,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 16,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: palette.textPrimary,
-    fontWeight: '800',
-  },
-  signOutButton: {
-    backgroundColor: 'rgba(183, 28, 28, 0.12)',
-    borderRadius: 16,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(183, 28, 28, 0.35)',
-  },
-  signOutButtonText: {
-    color: '#FFB3B3',
-    fontWeight: '800',
+    fontSize: 15,
   },
 });
