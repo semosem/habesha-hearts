@@ -41,7 +41,6 @@ const translations: Record<Locale, TranslationMap> = {
     inbox: 'Inbox',
     swipe: 'Swipe',
     likes: 'Likes',
-    explore: 'Explore',
     tabChat: 'Chat',
     findLove: 'Find love',
     messages: 'Messages',
@@ -81,8 +80,6 @@ const translations: Record<Locale, TranslationMap> = {
     tabProfile: 'Profile',
     likesTitle: 'People you liked',
     likesEmpty: 'No likes yet. Swipe right on someone first.',
-    exploreTitle: 'Explore',
-    exploreHint: 'Browse profiles without swiping. Good for slower decisions.',
     language: 'Language',
     aboutTitle: 'About Habesha Hearts',
     aboutBody:
@@ -124,7 +121,6 @@ const translations: Record<Locale, TranslationMap> = {
     inbox: 'ግቢ መልእክቶች',
     swipe: 'ስዋይፕ',
     likes: 'የወደዷቸው',
-    explore: 'አስስ',
     tabChat: 'ቻት',
     findLove: 'ፍቅር ፈልግ',
     messages: 'መልእክቶች',
@@ -164,8 +160,6 @@ const translations: Record<Locale, TranslationMap> = {
     tabProfile: 'ፕሮፋይል',
     likesTitle: 'የወደዷቸው ሰዎች',
     likesEmpty: 'ገና የወደዱት ሰው የለም። መጀመሪያ ቀኝ ይስዋይፉ።',
-    exploreTitle: 'አስስ',
-    exploreHint: 'ስዋይፕ ሳይደረግ ፕሮፋይሎችን ያስሱ። ለበለጠ ጥንቃቄ ውሳኔ ይረዳል።',
     language: 'ቋንቋ',
     aboutTitle: 'ስለ ሀበሻ ልቦች',
     aboutBody:
